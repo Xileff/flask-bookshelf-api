@@ -21,3 +21,26 @@ class Book(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'year': self.year,
+            'author': self.author,
+            'summary': self.summary,
+            'publisher': self.publisher,
+            'pageCount': self.page_count,
+            'readPage': self.read_page,
+            'finished': bool(self.finished),
+            'reading': bool(self.reading),
+            'insertedAt': self.inserted_at,
+            'updatedAt': self.updated_at,
+        }
+    
+    def serialize_simple(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'publisher': self.publisher,
+        }

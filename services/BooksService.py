@@ -1,23 +1,18 @@
-from flask import make_response
+from flask import make_response, json, jsonify
 from nanoid import generate
 from models.Book import Book
+from exceptions.Client import ClientError
 import datetime
 
-def add_book_service(data):
+def add_book(data):
     try:
         if 'name' not in data:
-            return make_response({
-                'status': 'fail',
-                'message': 'Gagal menambahkan buku. Mohon isi nama buku'
-            }, 400)
+            raise ClientError('Gagal menambahkan buku. Mohon isi nama buku', 400)
         
         name, year, author, summary, publisher, pageCount, readPage, reading = data.values()
 
         if readPage > pageCount:
-            return make_response({
-                'status': 'fail',
-                'message': 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount'
-            }, 400)
+            raise ClientError('Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount', 400)
 
         insertedAt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         updatedAt = insertedAt
@@ -40,17 +35,29 @@ def add_book_service(data):
 
         book.save()
 
-        return make_response({
-            'status': 'success',
-            'message': 'Buku berhasil ditambahkan',
-            'data': {
-                'bookId': id,
-            }
-        }, 201)
-
-        
+        return id
+    except ClientError as e:
+        raise e
     except Exception as e:
-        return make_response({
-            'status': 'failed',
-            'message': str(e)
-        }, 500)
+        raise e
+
+def get_books():
+    try:
+        books = Book.query.all()
+        book_list = [book.serialize_simple() for book in books]
+
+        return book_list
+
+    except Exception as e:
+        raise e
+
+def get_book_by_id(id):
+    try:
+        book = Book.query.filter_by(id=id).first()
+        
+        if not book:
+            raise ClientError('Buku tidak ditemukan', 404)
+        
+        return book.serialize()
+    except Exception as e:
+        raise e
