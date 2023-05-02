@@ -1,7 +1,10 @@
+# Dependencies
 from flask import Flask
 from flask_cors import CORS
 from config import Config
 from database import db
+
+# Blueprints(endpoint routes)
 from api.books import book_route
 
 app = Flask(__name__)
