@@ -1,4 +1,5 @@
 from database import db
+import datetime
 
 class Book(db.Model):
     __tablename__ = 'books'
@@ -44,3 +45,21 @@ class Book(db.Model):
             'name': self.name,
             'publisher': self.publisher,
         }
+    
+    def update(self, data: dict):
+        name, year, author, summary, publisher, pageCount, readPage, reading = data.values()
+        
+        self.name = name
+        self.year = year
+        self.author = author
+        self.summary = summary
+        self.publisher = publisher
+        self.page_count = pageCount
+        self.read_page = readPage
+        self.reading = reading
+        self.updated_at = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

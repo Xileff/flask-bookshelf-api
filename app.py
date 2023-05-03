@@ -1,5 +1,5 @@
 # Dependencies
-from flask import Flask, make_response
+from flask import Flask, make_response, Response
 from flask_cors import CORS
 from config import Config
 from database import db
@@ -30,6 +30,11 @@ def handle_server_error(e: Exception):
         'status': 'fail',
         'message': 'Oops, sorry. Something went wrong on our side.',
     }, 500)
+
+@app.after_request
+def add_header(response: Response):
+    response.headers['Content-Type'] = 'application/json; charset=utf-8'
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

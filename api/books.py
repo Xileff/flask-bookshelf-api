@@ -1,5 +1,4 @@
 from flask import Blueprint, request, make_response
-from errors.Client import ClientError
 from services.BooksService import *
 
 book_route = Blueprint('book_route', __name__)
@@ -18,7 +17,12 @@ def add_book_handler():
 
 @book_route.route('/books', methods=['GET'])
 def get_books_handler():
-    book_list = get_books()
+    query = request.args.to_dict(flat=True)
+    name = query.get('name')
+    reading = query.get('reading')
+    finished = query.get('finished')
+
+    book_list = get_books(name, reading, finished)
     return make_response({
         'status': 'success',
         'data': {
@@ -34,4 +38,21 @@ def get_book_by_id_handler(id):
         'data': {
             'book': book,
         },
+    })
+
+@book_route.route('/books/<string:id>', methods=['PUT'])
+def edit_book_by_id_handler(id):
+    data = request.get_json()
+    update_book_by_id(id, data)
+    return make_response({
+        'status': 'success',
+        'message': 'Buku berhasil diperbarui',
+    })
+
+@book_route.route('/books/<string:id>', methods=['DELETE'])
+def delete_book_by_id_handler(id):
+    delete_book_by_id(id)
+    return make_response({
+        'status': 'success',
+        'message': 'Buku berhasil dihapus'
     })
